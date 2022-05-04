@@ -6,7 +6,7 @@ export default {
     titleTemplate: '%s - task-app',
     title: 'task-app',
     htmlAttrs: {
-      lang: 'en'
+      lang: 'pt_BR'
     },
     meta: [
       { charset: 'utf-8' },
