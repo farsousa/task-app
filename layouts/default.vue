@@ -8,7 +8,14 @@
           </NuxtLink>
         </div>
         <div id="header-menu">
-          <NuxtLink to="/login" style="text-decoration:none;"> 
+          <v-switch
+            @change="toggleDarkTheme()"
+            color="#fff"
+            inset
+            label="Tema Dark"
+            id="teste"
+          ></v-switch>
+          <NuxtLink to="/login" style="text-decoration:none; margin-left: 20px"> 
             <v-btn
               color="#fff"
               dark
@@ -32,6 +39,19 @@
 <script>
 export default {
   name: 'DefaultLayout',
+  data: () => ({
+    theme: false,
+  }),
+
+  created() {
+    this.$vuetify.theme.dark = false
+  },
+
+  methods: {
+    toggleDarkTheme() {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    },
+  }
 }
 </script>
 
@@ -43,6 +63,12 @@ export default {
     padding: 10px 30px;
     background-color: #0563c2;
     color: #ffffff;
+  }
+
+  #header-page #header-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #footer-page {

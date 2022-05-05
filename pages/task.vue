@@ -1,6 +1,49 @@
 <template>
   <v-main id="container">
     <h1>Gerenciador de Tarefas</h1>
+
+    <div id="options">
+      <v-row>
+        <v-col
+          cols="12"
+          sm="12"
+          md="9"
+        >
+          <v-text-field
+            v-model="search"
+            append-icon="mdi-magnify"
+            label="Pesquise por título, descrição ou situação"
+            single-line
+            hide-details
+            style="margin-right:30px"
+          ></v-text-field>
+        </v-col>
+        <v-col
+          id="option-special"
+          cols="12"
+          sm="12"
+          md="3"
+        >
+          <NuxtLink to="/">
+            <v-btn
+              color="primary"
+              dark
+              class="mb-2 me-4 scale"
+            >
+              Voltar
+            </v-btn>
+          </NuxtLink>          
+          <v-btn
+            color="#F59921"
+            dark
+            class="mb-2 me-4 scale"
+            @click="search = ''"
+          >
+            Limpar
+          </v-btn>
+        </v-col>
+      </v-row>
+    </div>    
     
     <div class="text-center">
       <v-snackbar
@@ -34,31 +77,7 @@
           flat
         >
           <v-spacer></v-spacer>
-          <v-text-field
-            v-model="search"
-            append-icon="mdi-magnify"
-            label="Pesquise por título, descrição ou status"
-            single-line
-            hide-details
-            style="margin-right:30px"
-          ></v-text-field>
-          <NuxtLink to="/">
-            <v-btn
-              color="primary"
-              dark
-              class="mb-2 me-4 scale"
-            >
-              Voltar
-            </v-btn>
-          </NuxtLink>          
-          <v-btn
-            color="#F59921"
-            dark
-            class="mb-2 me-4 scale"
-            @click="search = ''"
-          >
-            Limpar
-          </v-btn>
+                   
           <v-dialog
             v-model="dialog"
             max-width="500px"
@@ -107,10 +126,12 @@
                       sm="6"
                       md="4"
                     >
-                      <v-text-field
-                        v-model="editedItem.status"
-                        label="Situação"
-                      ></v-text-field>
+                      <v-select
+                          v-show="formTitle !== 'Nova Tarefa'"
+                          v-model="editedItem.status"
+                          :items="items"
+                          label="Situação"
+                      ></v-select>
                     </v-col>
                   </v-row>
                 </v-container>
@@ -189,31 +210,40 @@ export default {
       { text: 'Descrição', value: 'description' },
       { text: 'Situação', value: 'status' },
       { text: 'Data de Conclusão', value: 'conclusionDate' },
-      { text: 'Ações', value: 'actions', align: 'right', sortable: false},
+      { text: 'Ações', value: 'actions', align: 'center', sortable: false},
     ],
     tasks: [],
     editedIndex: -1,
     editedItem: {
-      id: '',
+      id: ' ',
       title: '',
-      description: "",
-      status: "",
+      description: '',
+      status: '',
+      conclusionDate: ''
     },
     defaultItem: {
-      id: '',
-      title: " ",
-      description: " ",
-      status: " ",
+      id: ' ',
+      title: '',
+      description: '',
+      status: 'Aberta',
+      conclusionDate: ''
     },
     //PESQUISA
     search: "",
     //REQUISIÇÃO
-    urlBaseAPI: "http://localhost:8080/task/"
+    urlBaseAPI: "http://localhost:8080/task/",
+    idAposConfirmar: '',
+    //SELECT DE SITUAÇÃO
+    items: [
+      'Aberta',
+      'Fazendo',
+      'Concluída',
+    ],
   }),
 
   computed: {
     formTitle () {
-      return this.editedIndex === -1 ? 'Novo Tarefa' : 'Editar Tarefa'
+      return this.editedIndex === -1 ? 'Nova Tarefa' : 'Editar Tarefa'
     },
     tasksWithFilter() {
         if (this.search){
@@ -250,26 +280,28 @@ export default {
         this.dialog = true
       },      
      
-      async deleteItem (item) {
-        
-        await this.$axios.delete(`http://localhost:8080/task/${this.editedIndex.id}`)
-          .then(() => {
-            this.editedIndex = this.tasks.indexOf(item)
-            this.editedItem = Object.assign({}, item)
+      deleteItem (item) {  
+        this.editedIndex = this.tasks.indexOf(item)  
+        this.editedItem = Object.assign({}, item)  
+        this.idAposConfirmar = this.editedItem.id
+        this.dialogDelete = true
+      },
+
+      async deleteItemConfirm () {         
+        this.closeDelete()
+        await this.$axios.delete(`http://localhost:8080/task/${this.idAposConfirmar}`)
+          .then(() => {         
+            this.tasks.splice(this.editedIndex, 1)   
             this.color = 'success'
             this.text = 'Tarefa excluída com sucesso!'
             this.snackbar = true
-          }, () => {
+          })
+          .catch((error) => {
             this.color = 'error'
             this.text = 'Erro ao excluir tarefa!'
             this.snackbar = true
+            console.log('erro:', error)
           })
-          this.dialogDelete = true
-      },
-
-      deleteItemConfirm () {
-        this.tasks.splice(this.editedIndex, 1)
-        this.closeDelete()
       },
       
       close () {
@@ -290,30 +322,35 @@ export default {
       
       async save () {
         if (this.editedIndex > -1) {
-          await this.$axios.patch(`http://localhost:8080/task/${this.editedIndex.id}`, this.editedItem)
+          await this.$axios.patch(`http://localhost:8080/task/${this.editedItem.id}`, this.editedItem)
             .then(() => {
               Object.assign(this.tasks[this.editedIndex], this.editedItem)
               this.color = 'success'
               this.text = 'Tarefa editada com sucesso!'
               this.snackbar = true
-            }, () => {
+            })
+            .catch((error) => {
               this.color = 'error'
-              this.text = 'Erro ao editadar tarefa!'
+              this.text = 'Erro ao editar tarefa!'
+              console.log(error)
               this.snackbar = true
             })
         } else {  
           await this.$axios.post(`http://localhost:8080/task/`, this.editedItem)
             .then(() => {
-              Object.assign(this.tasks[this.editedIndex], this.editedItem)
               this.color = 'success'
               this.text = 'Tarefa salva com sucesso!'
               this.snackbar = true
-            }, () => {
+            })
+            .catch((error) => {
               this.color = 'error'
-              this.text = 'Erro ao salvar tarefa!'
+              this.text = 'Erro ao excluir tarefa! Verifique se os dados foram preenchidos corretamente.'
               this.snackbar = true
-          })
+              console.log('erro: ', error)
+            })
         }
+        
+        this.initialize()
         this.close()
       },
     },
@@ -327,6 +364,17 @@ export default {
   }
 
   #container h1{
-    margin-bottom: 20px;
+    margin-bottom: 20px 0;
   }
+
+  #options {
+    margin-bottom: 30px;
+    padding: 20px 0 20px 20px;
+  }
+
+  #options #option-special {
+    display: flex;
+    justify-content:right;
+  }
+
 </style>
