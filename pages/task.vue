@@ -183,6 +183,7 @@ export default {
     dialog: false,
     dialogDelete: false,
     headers: [
+      { text: 'Id', value: 'id' },
       { text: 'Dada de Criação', align: 'start', sortable: false, value: 'criationDate'},
       { text: 'Título', value: 'title' },
       { text: 'Descrição', value: 'description' },
@@ -193,11 +194,13 @@ export default {
     tasks: [],
     editedIndex: -1,
     editedItem: {
+      id: '',
       title: '',
       description: "",
       status: "",
     },
     defaultItem: {
+      id: '',
       title: " ",
       description: " ",
       status: " ",
@@ -238,29 +241,7 @@ export default {
     methods: {
       async initialize () {    
         this.search = "" 
-        this.tasks = [
-          {
-            title: 'arrow function',
-            description: 'conteúdo de js',
-            status: 'Fazendo'
-          },
-          {
-            title: 'JUnit',
-            description: 'testar aplicação java',
-            status: 'Feito'
-          },
-          {
-            title: 'paginação',
-            description: 'como é feito no spring boot',
-            status: 'Fazer'
-          },
-        ]
-        //const tasks = await this.$axios.$get(this.urlBaseAPI)
-
-        /*
-        this.$http.get(`${this.rotaApi}ponto/`)
-            .then(res => res.json())
-            .then(itens => this.pontos = itens);*/
+        this.tasks = await this.$axios.$get(this.urlBaseAPI)
       },
 
       editItem (item) {
@@ -269,14 +250,21 @@ export default {
         this.dialog = true
       },      
      
-      deleteItem (item) {
-        this.editedIndex = this.tasks.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.color = 'success'
-        this.text = 'Tarefa excluída com sucesso!'
-        this.snackbar = true
-        //this.$http.delete(`${this.rotaApi}ponto/${item.id}`)
-        this.dialogDelete = true
+      async deleteItem (item) {
+        
+        await this.$axios.delete(`http://localhost:8080/task/${this.editedIndex.id}`)
+          .then(() => {
+            this.editedIndex = this.tasks.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.color = 'success'
+            this.text = 'Tarefa excluída com sucesso!'
+            this.snackbar = true
+          }, () => {
+            this.color = 'error'
+            this.text = 'Erro ao excluir tarefa!'
+            this.snackbar = true
+          })
+          this.dialogDelete = true
       },
 
       deleteItemConfirm () {
@@ -302,37 +290,29 @@ export default {
       
       async save () {
         if (this.editedIndex > -1) {
-          this.color = 'success'
-          this.text = 'Tarefa editada com sucesso!'
-          this.snackbar = true
-          Object.assign(this.tasks[this.editedIndex], this.editedItem)
-          /*await this.$http.patch(`${this.rotaApi}ponto/${this.editedItem.id}`, this.editedItem).then(() => {
-            this.infoalert = 'success'
-            this.textalert = 'Filiado editado com sucesso!'
-            Object.assign(this.pontos[this.editedIndex], this.editedItem)
-            setTimeout(() => {this.textalert = ''}, 3000)
-          },
-          () => {
-            this.infoalert = 'error'
-            this.textalert = 'Erro ao editar filiado, verifique se os campos obrigatórios (*) foram preenchidos!'
-            setTimeout(() => {this.textalert = ''}, 4000)
-          })*/
+          await this.$axios.patch(`http://localhost:8080/task/${this.editedIndex.id}`, this.editedItem)
+            .then(() => {
+              Object.assign(this.tasks[this.editedIndex], this.editedItem)
+              this.color = 'success'
+              this.text = 'Tarefa editada com sucesso!'
+              this.snackbar = true
+            }, () => {
+              this.color = 'error'
+              this.text = 'Erro ao editadar tarefa!'
+              this.snackbar = true
+            })
         } else {  
-          this.color = 'success'
-          this.text = 'Tarefa salva com sucesso!'
-          this.snackbar = true
-          this.tasks.push(this.editedItem)        
-          /*await this.$http.post(`${this.rotaApi}ponto/`, this.editedItem).then(() => {
-            this.infoalert = 'success'
-            this.textalert = 'Filiado salvo com sucesso!'
-            this.pontos.push(this.editedItem)
-            setTimeout(() => {this.textalert = ''}, 3000)
-          },
-          () =>{
-            this.infoalert = 'error'
-            this.textalert = 'Erro ao salvar filiado, verifique se os campos obrigatórios (*) foram preenchidos!'
-            setTimeout(() => {this.textalert = ''}, 4000)
-          })*/
+          await this.$axios.post(`http://localhost:8080/task/`, this.editedItem)
+            .then(() => {
+              Object.assign(this.tasks[this.editedIndex], this.editedItem)
+              this.color = 'success'
+              this.text = 'Tarefa salva com sucesso!'
+              this.snackbar = true
+            }, () => {
+              this.color = 'error'
+              this.text = 'Erro ao salvar tarefa!'
+              this.snackbar = true
+          })
         }
         this.close()
       },
