@@ -1,40 +1,43 @@
 <template>
   <v-main>
     <div id="container">
-      <div id="container-image">
-        <img src="start-image.svg" alt="pessoasfazendoanotacoes" />
-      </div>
+      
+        <img src="construction-image.png" alt="sistemamanutencao" />       
+       
       <div id="container-text">
-        <h1>Gerenciador de Tarefas</h1>
-        <p>Com nossa ferramenta, você pode acompanhar o progresso de suas atividade de forma simples.</p>
-        <NuxtLink to="/task"><button>Experimentar Grátis</button></NuxtLink> 
-      </div>
+        <h1>Em construção</h1>
+        <p>A tela de login está em construção para que você possa salvar permanentemente suas tarefas.</p>
+        <NuxtLink to="/"><button>Voltar ao Início</button></NuxtLink> 
+      </div>  
     </div>
-  </v-main>  
+  </v-main>
 </template>
 
 <script>
 export default {
-  name: 'IndexPage'
+  name: 'LoginPage',
 }
 </script>
 
 <style scoped>
-  #container {
+#container {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    width: 60%;
+    min-width: 200px;
+    margin: 40px auto;
   }
 
-  #container-image {
+  #container-image img{
     min-width: 300px;
-    width: 60%;
+    max-width: 30%;
   }
 
   #container-text {
     min-width: 300px;
-    width: 40%;
+    width: 30%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -60,6 +63,8 @@ export default {
     width: 50%;
     min-width: 250px;
     font-weight: bold;    
+    transition-property: transform;
+    transition-duration: 0.2s;
   }
 
   #container-text button:hover {
