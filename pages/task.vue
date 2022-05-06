@@ -209,7 +209,7 @@ export default {
       { text: 'Título', value: 'title' },
       { text: 'Descrição', value: 'description' },
       { text: 'Situação', value: 'status' },
-      { text: 'Data de Conclusão', value: 'conclusionDate' },
+      { text: 'Data de Conclusão', value: 'conclusionDate'},
       { text: 'Ações', value: 'actions', align: 'center', sortable: false},
     ],
     tasks: [],
@@ -359,7 +359,7 @@ export default {
 
 <style scoped> 
   #container {
-    margin: 30px auto;
+    margin: 30px auto 60px;
     width: 95%;
   }
 
