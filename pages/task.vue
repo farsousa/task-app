@@ -169,6 +169,32 @@
           </v-dialog>
         </v-toolbar>
       </template>
+      <template v-slot:item.situations="{ item }">
+        <v-icon
+          small
+          color="#e2e2e2"
+          v-show="item.status=='Aberta'"
+          :title="item.status"
+        >
+          mdi-circle-outline
+        </v-icon>
+        <v-icon
+          small
+          color="#00ff00"
+          v-show="item.status=='Fazendo'"
+          :title="item.status"
+        >
+          mdi-circle-slice-5
+        </v-icon>
+        <v-icon
+          small
+          color="#ff0000"
+          v-show="item.status=='Concluída'"
+          :title="item.status"
+        >
+          mdi-circle-slice-8
+        </v-icon>
+      </template>
       <template v-slot:item.actions="{ item }">
         <v-icon
           small
@@ -208,8 +234,8 @@ export default {
       { text: 'Dada de Criação', align: 'start', sortable: false, value: 'criationDate'},
       { text: 'Título', value: 'title' },
       { text: 'Descrição', value: 'description' },
-      { text: 'Situação', value: 'status' },
       { text: 'Data de Conclusão', value: 'conclusionDate'},
+      { text: 'Situação', value: 'situations', align: 'center', sortable: false},
       { text: 'Ações', value: 'actions', align: 'center', sortable: false},
     ],
     tasks: [],
