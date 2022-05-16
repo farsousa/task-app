@@ -180,11 +180,19 @@
         </v-icon>
         <v-icon
           small
+          color="#F59921"
+          v-show="item.status=='Pausada'"
+          :title="item.status"
+        >
+          mdi-circle-slice-3
+        </v-icon>
+        <v-icon
+          small
           color="#00ff00"
           v-show="item.status=='Fazendo'"
           :title="item.status"
         >
-          mdi-circle-slice-5
+          mdi-circle-slice-3
         </v-icon>
         <v-icon
           small
@@ -262,8 +270,9 @@ export default {
     //SELECT DE SITUAÇÃO
     items: [
       'Aberta',
-      'Fazendo',
-      'Concluída',
+      'Fazendo',      
+      'Pausada',
+      'Concluída'
     ],
   }),
 
