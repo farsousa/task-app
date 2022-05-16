@@ -8,7 +8,6 @@ Frontend project for managing tasks in relation to their progress: open, doing, 
 
 ## Requirements
 * Node + NPM
-* VScode
 
 ## How to run the project?
 With the project on your machine, do the following:
